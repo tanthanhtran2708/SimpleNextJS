@@ -1,209 +1,125 @@
 import Head from 'next/head'
+import { Button, InputGroup } from 'react-bootstrap'
+import React from 'react'
+import { CommentModel, PostModel } from './models'
+export default class Index extends React.Component {
+  constructor() {
+    super()
+    this.state = { posts: [], text: "", commentContent:"", currentPostIndex: -1, editPostText:"", editCommentText:"", currentCommentIndex: -1, isPostEdditing: false, isCommentEditing: false }
+    this.createAPost = this.createAPost.bind(this)
+    this.onClickEdit = this.onClickEdit.bind(this)
+    this.onFinishEdit = this.onFinishEdit.bind(this)
+  }
+  onPressComment(index) {
+    let { posts, commentContent } = this.state
+    let comment = new CommentModel()
+    comment.content = commentContent
+    posts[index].comments.push(comment)
+    this.setState({ posts: posts, commentContent: "" });
+  }
 
-export default function Home() {
-  return (
-    <div className="container">
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+  onFinishEditComment(postIndex, commentIndex) {
+    let { posts, editCommentText } = this.state
+    posts[postIndex].comments[commentIndex].content = editCommentText
+    this.setState({ posts: posts, editCommentText: "", currentCommentIndex: -1, currentPostIndex: -1 });
+  }
 
-      <main>
-        <h1 className="title">
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
+  onFinishEdit(index) {
+    let { posts, editPostText } = this.state
+    posts[index].content = editPostText
+    this.setState({ currentPostIndex: -1, editPostText:"", posts: posts, isPostEdditing: false });
+  }
 
-        <p className="description">
-          Get started by editing <code>pages/index.js</code>
-        </p>
+  onClickEdit(index) {
+    this.setState({ currentPostIndex: index, isPostEdditing: true });
+  }
 
-        <div className="grid">
-          <a href="https://nextjs.org/docs" className="card">
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
+  onClickEditComment(postIndex, index) {
+    this.setState({ currentCommentIndex: index, isCommentEditing: true, currentPostIndex: postIndex });
+  }
 
-          <a href="https://nextjs.org/learn" className="card">
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
+  createAPost() {
+    const text = this.state.text
+    const post = new PostModel()
+    post.content = text
+    this.setState({posts: [...this.state.posts, post ], text:""})
+  }
 
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className="card"
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="card"
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className="logo" />
-        </a>
-      </footer>
-
-      <style jsx>{`
-        .container {
-          min-height: 100vh;
-          padding: 0 0.5rem;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-
-        main {
-          padding: 5rem 0;
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          align-items: center;
-        }
-
-        footer {
-          width: 100%;
-          height: 100px;
-          border-top: 1px solid #eaeaea;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        footer img {
-          margin-left: 0.5rem;
-        }
-
-        footer a {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-        }
-
-        a {
-          color: inherit;
-          text-decoration: none;
-        }
-
-        .title a {
-          color: #0070f3;
-          text-decoration: none;
-        }
-
-        .title a:hover,
-        .title a:focus,
-        .title a:active {
-          text-decoration: underline;
-        }
-
-        .title {
-          margin: 0;
-          line-height: 1.15;
-          font-size: 4rem;
-        }
-
-        .title,
-        .description {
-          text-align: center;
-        }
-
-        .description {
-          line-height: 1.5;
-          font-size: 1.5rem;
-        }
-
-        code {
-          background: #fafafa;
-          border-radius: 5px;
-          padding: 0.75rem;
-          font-size: 1.1rem;
-          font-family: Menlo, Monaco, Lucida Console, Liberation Mono,
-            DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
-        }
-
-        .grid {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-wrap: wrap;
-
-          max-width: 800px;
-          margin-top: 3rem;
-        }
-
-        .card {
-          margin: 1rem;
-          flex-basis: 45%;
-          padding: 1.5rem;
-          text-align: left;
-          color: inherit;
-          text-decoration: none;
-          border: 1px solid #eaeaea;
-          border-radius: 10px;
-          transition: color 0.15s ease, border-color 0.15s ease;
-        }
-
-        .card:hover,
-        .card:focus,
-        .card:active {
-          color: #0070f3;
-          border-color: #0070f3;
-        }
-
-        .card h3 {
-          margin: 0 0 1rem 0;
-          font-size: 1.5rem;
-        }
-
-        .card p {
-          margin: 0;
-          font-size: 1.25rem;
-          line-height: 1.5;
-        }
-
-        .logo {
-          height: 1em;
-        }
-
-        @media (max-width: 600px) {
-          .grid {
-            width: 100%;
-            flex-direction: column;
+  renderComments(postIndex, comments) {
+    return comments.map((comment, index) => {
+      const { currentCommentIndex, currentPostIndex, isCommentEditing } = this.state
+      return (
+        <div className="p-2 m-2 d-flex flex-column align-items-start">
+          {
+            currentCommentIndex === index &&  currentPostIndex === postIndex && isCommentEditing ? 
+              <div>
+                 <input value={this.state.editCommentText} onChange={(text) => { this.setState({ editCommentText: text.target.value })}} type="text" class="form-control" placeholder="Leave your comment here ..." aria-describedby="basic-addon2"/>
+              </div> :
+              <div className="p-2 comment-item">
+                {comment.content}
+              </div>
           }
-        }
-      `}</style>
+          <div className="edit-btn mt-2 d-flex justify-content-end">
+            {
+              currentCommentIndex === index && currentPostIndex === postIndex && isCommentEditing ? 
+                <div onClick={()=> this.onFinishEditComment(postIndex, index)} className="align-self-end">Finish</div> :
+                <div onClick={()=> this.onClickEditComment(postIndex, index)} className="d-flex align-self-end">Edit</div>
+            }
+          </div>
+        </div>
+      )
+    })
+  }
 
-      <style jsx global>{`
-        html,
-        body {
-          padding: 0;
-          margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto,
-            Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue,
-            sans-serif;
-        }
+  renderCommentBar(index) {
+    const { currentPostIndex, isPostEdditing, posts } = this.state
+    return (
+      <div class="input-group mb-3  mt-3">
+        <input onFocus={() => this.setState({ currentPostIndex: index })} onBlur={() => this.setState({ currentPostIndex: -1, commentContent: currentPostIndex === index ? this.state.commentContent : "" })} value={currentPostIndex === index ? this.state.commentContent : ""} onChange={(text) => { this.setState({ commentContent: text.target.value })}} type="text" class="form-control" placeholder="Leave your comment here ..." aria-describedby="basic-addon2"/>
+          <div class="input-group-append">
+          <button onClick={() => { this.onPressComment(index) }} class="btn btn-outline-secondary" type="button">Comment</button>
+        </div>
+        <div class="input-group-append">
+          {currentPostIndex === index && isPostEdditing ? <button onClick={()=> this.onFinishEdit(index)} class="btn btn-outline-secondary" type="button">Finish</button> : <button onClick={()=> this.onClickEdit(index)} class="btn btn-outline-secondary" type="button">Edit</button>}
+          </div>
+      </div>
+      )
+  }
 
-        * {
-          box-sizing: border-box;
-        }
-      `}</style>
-    </div>
-  )
+  renderItem() {
+    const { posts, currentPostIndex, isPostEdditing } = this.state
+    return posts.map((post, index) => {
+      return (
+        <div className="w-100 p-3 mt-2  feed-container">
+          {currentPostIndex === index && isPostEdditing ?
+            <input value={this.state.editPostText} onChange={(text)=>this.setState({editPostText: text.target.value})} placeholder="What is going on? " className="w-100 h-75 input-field p-2 mb-2" /> :
+            <div className="content-container p-2">
+              <div>{post.content}</div>
+            </div>
+          }
+          {this.renderComments(index, post.comments)}
+          <div>
+            {this.renderCommentBar(index)}
+          </div>
+        </div>
+      )
+    })
+  }
+  renderInputForm() {
+    return (
+      <div className="h-25 p-3 input-container d-flex flex-column justify-content-center">
+        <input value={this.state.text} onChange={(text)=>this.setState({text: text.target.value})} placeholder="What is going on?" className="w-100 h-75 input-field p-2 mb-2" />
+        <Button onClick={()=> this.createAPost()} className="w-25 bg-warning btn-outline-warning  btn text-white" >Post now</Button>
+      </div>
+    )
+  }
+  render() {
+    return (
+      <div className="main-wrapper p-3 container-fluid">
+        {this.renderInputForm()}
+        {this.renderItem()}
+      </div>
+    )
+  }
 }
+//
