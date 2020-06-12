@@ -9,24 +9,43 @@ export default class Index extends React.Component {
     this.createAPost = this.createAPost.bind(this)
     this.onClickEdit = this.onClickEdit.bind(this)
     this.onFinishEdit = this.onFinishEdit.bind(this)
+    this.onPressDeletePost = this.onPressDeletePost.bind(this)
   }
+  onPressDeletePost(index) {
+    let { posts } = this.state
+    posts.splice(index, 1);
+    this.setState({ posts: posts });
+  }
+
+  onPressDeleteComment(postIndex, commentIndex) {
+    let { posts } = this.state
+    posts[postIndex].comments.splice(commentIndex, 1);
+    this.setState({ posts: posts });
+  }
+
   onPressComment(index) {
     let { posts, commentContent } = this.state
-    let comment = new CommentModel()
-    comment.content = commentContent
-    posts[index].comments.push(comment)
+    if (commentContent) {
+      let comment = new CommentModel()
+      comment.content = commentContent
+      posts[index].comments.push(comment)
+    }
     this.setState({ posts: posts, commentContent: "" });
   }
 
   onFinishEditComment(postIndex, commentIndex) {
     let { posts, editCommentText } = this.state
-    posts[postIndex].comments[commentIndex].content = editCommentText
+    if (editCommentText) {
+      posts[postIndex].comments[commentIndex].content = editCommentText
+    }
     this.setState({ posts: posts, editCommentText: "", currentCommentIndex: -1, currentPostIndex: -1 });
   }
 
   onFinishEdit(index) {
     let { posts, editPostText } = this.state
-    posts[index].content = editPostText
+    if (editPostText) {
+      posts[index].content = editPostText
+    }
     this.setState({ currentPostIndex: -1, editPostText:"", posts: posts, isPostEdditing: false });
   }
 
@@ -40,31 +59,34 @@ export default class Index extends React.Component {
 
   createAPost() {
     const text = this.state.text
-    const post = new PostModel()
-    post.content = text
-    this.setState({posts: [...this.state.posts, post ], text:""})
+    if (text) {
+      const post = new PostModel()
+      post.content = text
+      this.setState({posts: [...this.state.posts, post ], text:""})
+    }
   }
 
   renderComments(postIndex, comments) {
     return comments.map((comment, index) => {
       const { currentCommentIndex, currentPostIndex, isCommentEditing } = this.state
       return (
-        <div className="p-2 m-2 d-flex flex-column align-items-start">
+        <div className="p-2 m-2 d-flex flex-column align-items-start w-100">
           {
             currentCommentIndex === index &&  currentPostIndex === postIndex && isCommentEditing ? 
-              <div>
-                 <input value={this.state.editCommentText} onChange={(text) => { this.setState({ editCommentText: text.target.value })}} type="text" class="form-control" placeholder="Leave your comment here ..." aria-describedby="basic-addon2"/>
+              <div className="p-2 comment-item w-100"> 
+                 <input  value={this.state.editCommentText} onChange={(text) => { this.setState({ editCommentText: text.target.value })}} type="text" class="form-control w-100" placeholder="Leave your comment here ..." aria-describedby="basic-addon2"/>
               </div> :
-              <div className="p-2 comment-item">
+              <div className="p-2 comment-item w-100">
                 {comment.content}
               </div>
           }
-          <div className="edit-btn mt-2 d-flex justify-content-end">
+          <div className="w-100 edit-btn mt-2 d-flex justify-content-end">
             {
               currentCommentIndex === index && currentPostIndex === postIndex && isCommentEditing ? 
                 <div onClick={()=> this.onFinishEditComment(postIndex, index)} className="align-self-end">Finish</div> :
                 <div onClick={()=> this.onClickEditComment(postIndex, index)} className="d-flex align-self-end">Edit</div>
             }
+            <div className="ml-2" onClick={() => this.onPressDeleteComment(postIndex, index)}>Delete</div>
           </div>
         </div>
       )
@@ -77,11 +99,14 @@ export default class Index extends React.Component {
       <div class="input-group mb-3  mt-3">
         <input onFocus={() => this.setState({ currentPostIndex: index })} onBlur={() => this.setState({ currentPostIndex: -1, commentContent: currentPostIndex === index ? this.state.commentContent : "" })} value={currentPostIndex === index ? this.state.commentContent : ""} onChange={(text) => { this.setState({ commentContent: text.target.value })}} type="text" class="form-control" placeholder="Leave your comment here ..." aria-describedby="basic-addon2"/>
           <div class="input-group-append">
-          <button onClick={() => { this.onPressComment(index) }} class="btn btn-outline-secondary" type="button">Comment</button>
+            <button onClick={() => { this.onPressComment(index) }} class="btn btn-outline-secondary" type="button">Comment</button>
+          </div>
+          <div class="input-group-append">
+            {currentPostIndex === index && isPostEdditing ? <button onClick={()=> this.onFinishEdit(index)} class="btn btn-outline-secondary" type="button">Finish</button> : <button onClick={()=> this.onClickEdit(index)} class="btn btn-outline-secondary" type="button">Edit</button>}
         </div>
         <div class="input-group-append">
-          {currentPostIndex === index && isPostEdditing ? <button onClick={()=> this.onFinishEdit(index)} class="btn btn-outline-secondary" type="button">Finish</button> : <button onClick={()=> this.onClickEdit(index)} class="btn btn-outline-secondary" type="button">Edit</button>}
-          </div>
+          <button onClick={() => { this.onPressDeletePost(index) }} class="btn btn-outline-secondary" type="button">Delete</button>
+        </div>
       </div>
       )
   }
