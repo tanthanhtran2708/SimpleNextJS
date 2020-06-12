@@ -1,7 +1,7 @@
 import Head from 'next/head'
 import { Button, InputGroup } from 'react-bootstrap'
 import React from 'react'
-import { CommentModel, PostModel } from './models'
+import { CommentModel, PostModel } from '../models/'
 export default class Index extends React.Component {
   constructor() {
     super()
